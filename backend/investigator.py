@@ -1,17 +1,11 @@
-import anthropic
 from pathlib import Path
 from .models import Ticket, Severity
-
-client = anthropic.Anthropic()  # reads ANTHROPIC_API_KEY from env
+from .config import settings
 
 SYSTEM_PROMPT = Path(__file__).parent.parent / "prompts" / "investigate.md"
 
 
 def investigate(ticket: Ticket) -> dict:
-    """
-    Call Claude to investigate a parsed Jenkins failure.
-    Returns structured investigation result.
-    """
     system = SYSTEM_PROMPT.read_text()
     parsed = ticket.parsed or {}
 
@@ -27,14 +21,7 @@ def investigate(ticket: Ticket) -> dict:
 ```
 """
 
-    response = client.messages.create(
-        model="claude-sonnet-4-20250514",
-        max_tokens=2048,
-        system=system,
-        messages=[{"role": "user", "content": user_msg}],
-    )
-
-    text = response.content[0].text
+    text = _call_llm(system, user_msg)
 
     return {
         "report":     text,
@@ -43,6 +30,31 @@ def investigate(ticket: Ticket) -> dict:
         "root_cause": _extract_section(text, "## Root Cause"),
         "fix":        _extract_section(text, "## Fix"),
     }
+
+
+def _call_llm(system: str, user_msg: str) -> str:
+    if settings.anthropic_api_key:
+        import anthropic
+        client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
+        response = client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=2048,
+            system=system,
+            messages=[{"role": "user", "content": user_msg}],
+        )
+        return response.content[0].text
+    else:
+        from openai import OpenAI
+        client = OpenAI(base_url=settings.openai_base_url, api_key=settings.openai_api_key)
+        response = client.chat.completions.create(
+            model=settings.openai_model,
+            max_tokens=2048,
+            messages=[
+                {"role": "system", "content": system},
+                {"role": "user",   "content": user_msg},
+            ],
+        )
+        return response.choices[0].message.content
 
 
 def _extract_severity(text: str) -> Severity:
