@@ -10,7 +10,7 @@ def build_wiki_entry(ticket, investigation: dict) -> dict:
     content = f"""# [{ticket.id}] {ticket.job_name} failure
 
 **Date**: {ticket.created_at}
-**Severity**: {ticket.severity}
+**Severity**: {ticket.severity.value if ticket.severity else "unknown"}
 **Tags**: {tags}
 
 ## Summary
@@ -35,7 +35,8 @@ def build_wiki_entry(ticket, investigation: dict) -> dict:
 
 async def write_wiki_entry(payload: dict, repo: str, token: str) -> None:
     # MOCK: log payload instead of writing
-    print("[MOCK WIKI]", payload)
+    import json
+    print("[MOCK WIKI]", json.dumps(payload, ensure_ascii=True))
     # Real implementation (GitHub Contents API):
     # import httpx, base64
     # encoded = base64.b64encode(payload["content"].encode()).decode()

@@ -26,7 +26,7 @@ def build_teams_payload(ticket, investigation: dict) -> dict:
                     {
                         "type": "FactSet",
                         "facts": [
-                            {"title": "Severity",   "value": str(ticket.severity)},
+                            {"title": "Severity",   "value": ticket.severity.value if ticket.severity else "unknown"},
                             {"title": "Ticket",     "value": ticket.id},
                             {"title": "Root Cause", "value": investigation.get("root_cause", "")[:200]},
                         ],
@@ -47,8 +47,8 @@ def build_teams_payload(ticket, investigation: dict) -> dict:
 
 
 async def send_teams(payload: dict, webhook_url: str) -> None:
-    # MOCK: log payload instead of sending
-    print("[MOCK TEAMS]", payload)
+    import json
+    print("[MOCK TEAMS]", json.dumps(payload, ensure_ascii=True))
     # Real implementation:
     # import httpx
     # async with httpx.AsyncClient() as client:

@@ -26,7 +26,8 @@ def build_jira_payload(ticket, investigation: dict) -> dict:
 
 async def create_jira_issue(payload: dict, jira_base_url: str, token: str) -> None:
     # MOCK: log payload instead of sending
-    print("[MOCK JIRA]", payload)
+    import json
+    print("[MOCK JIRA]", json.dumps(payload, ensure_ascii=True))
     # Real implementation:
     # import httpx
     # async with httpx.AsyncClient() as client:

@@ -58,13 +58,19 @@ def _call_llm(system: str, user_msg: str) -> str:
 
 
 def _extract_severity(text: str) -> Severity:
+    section = _extract_section(text, "## Severity").lower()
+    if section:
+        if "bug" in section:
+            return Severity.BUG
+        if "flaky" in section:
+            return Severity.FLAKY
+        if "warning" in section:
+            return Severity.WARNING
     t = text.lower()
-    if "severity: bug" in t or "regression" in t:
+    if "regression" in t:
         return Severity.BUG
-    if "severity: flaky" in t or "transient" in t:
+    if "transient" in t:
         return Severity.FLAKY
-    if "severity: warning" in t:
-        return Severity.WARNING
     return Severity.UNKNOWN
 
 

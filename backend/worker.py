@@ -33,8 +33,8 @@ async def process_ticket(ticket: Ticket, db) -> None:
             # await create_jira_issue(jira_payload, settings.JIRA_URL, settings.JIRA_TOKEN)
 
         # 4. Send outputs (mocked — uncomment real calls when ready)
-        await send_teams(teams_payload, settings.TEAMS_WEBHOOK)
-        await write_wiki_entry(wiki_payload, settings.WIKI_REPO, settings.GITHUB_TOKEN)
+        await send_teams(teams_payload, settings.teams_webhook)
+        await write_wiki_entry(wiki_payload, settings.wiki_repo, settings.github_token)
 
         ticket.status = TicketStatus.RESOLVED
 
