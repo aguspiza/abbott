@@ -95,11 +95,11 @@ export default function TicketDetail() {
         <p className="meta">Created: {new Date(ticket.created_at).toLocaleString()}</p>
       </div>
 
-      {ticket.notes.length > 0 && (
+      {(ticket.notes ?? []).length > 0 && (
         <div className="card">
           <h2>User context</h2>
           <ul style={{ paddingLeft: '1.2rem', lineHeight: 1.8 }}>
-            {ticket.notes.map((n, i) => <li key={i} style={{ color: '#cbd5e1', fontSize: '0.9rem' }}>{n}</li>)}
+            {(ticket.notes ?? []).map((n, i) => <li key={i} style={{ color: '#cbd5e1', fontSize: '0.9rem' }}>{n}</li>)}
           </ul>
         </div>
       )}
@@ -107,7 +107,7 @@ export default function TicketDetail() {
       {ticket.investigation
         ? (
           <div className="card">
-            <h2>Investigation {ticket.notes.length > 0 ? `(re-run #${ticket.notes.length})` : ''}</h2>
+            <h2>Investigation {(ticket.notes ?? []).length > 0 ? `(re-run #${(ticket.notes ?? []).length})` : ''}</h2>
             <pre className="report">{ticket.investigation}</pre>
           </div>
         )
