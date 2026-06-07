@@ -1,10 +1,12 @@
 import type { Ticket } from './types'
 
+const BASE = (import.meta.env.VITE_API_URL ?? 'http://localhost:8000') + '/api'
+
 export async function createTicket(data: {
   raw_log: string
   build_url?: string
 }): Promise<Ticket> {
-  const res = await fetch('/api/tickets', {
+  const res = await fetch(`${BASE}/tickets`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -14,7 +16,7 @@ export async function createTicket(data: {
 }
 
 export async function addNote(id: string, note: string): Promise<Ticket> {
-  const res = await fetch(`/tickets/${id}/notes`, {
+  const res = await fetch(`${BASE}/tickets/${id}/notes`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ note }),
@@ -24,13 +26,13 @@ export async function addNote(id: string, note: string): Promise<Ticket> {
 }
 
 export async function getTicket(id: string): Promise<Ticket> {
-  const res = await fetch(`/tickets/${id}`)
+  const res = await fetch(`${BASE}/tickets/${id}`)
   if (!res.ok) throw new Error(`${res.status} ${res.statusText}`)
   return res.json()
 }
 
 export async function listTickets(days = 5): Promise<Ticket[]> {
-  const res = await fetch(`/tickets?days=${days}`)
+  const res = await fetch(`${BASE}/tickets?days=${days}`)
   if (!res.ok) throw new Error(`${res.status} ${res.statusText}`)
   return res.json()
 }

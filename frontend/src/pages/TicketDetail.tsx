@@ -65,7 +65,9 @@ export default function TicketDetail() {
   if (error) return (
     <div className="container">
       <Link to="/" className="back">← Back</Link>
-      <p className="error">{error}</p>
+      <p className="error">
+        {error.includes('404') ? `Ticket ${id} not found — it may be from a previous session.` : error}
+      </p>
     </div>
   )
 
