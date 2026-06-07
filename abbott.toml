@@ -1,0 +1,6 @@
+[worker]
+# Maximum number of tickets analysed at the same time.
+concurrency = 1
+
+# How often (seconds) the worker polls for new OPEN tickets.
+poll_interval = 5

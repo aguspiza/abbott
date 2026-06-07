@@ -1,21 +1,36 @@
+import asyncio
 import re
+import tomllib
 import uuid
 from datetime import datetime
+from pathlib import Path
 
-from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from .db import get_db, init_db
 from .models import Ticket, TicketCreate, TicketStatus, NoteCreate
-from .worker import process_ticket
+from .worker import analysis_loop
 
 app = FastAPI(title="Abbott — Jenkins Investigator")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 
+def _load_toml() -> dict:
+    path = Path(__file__).parent.parent / "abbott.toml"
+    if path.exists():
+        with open(path, "rb") as f:
+            return tomllib.load(f)
+    return {}
+
+
 @app.on_event("startup")
 async def startup():
     await init_db()
+    cfg = _load_toml().get("worker", {})
+    concurrency = cfg.get("concurrency", 1)
+    poll_interval = cfg.get("poll_interval", 5)
+    asyncio.create_task(analysis_loop(get_db, concurrency, poll_interval))
 
 
 def _job_name_from_url(url: str | None) -> str | None:
@@ -26,7 +41,7 @@ def _job_name_from_url(url: str | None) -> str | None:
 
 
 @app.post("/api/tickets", response_model=Ticket, status_code=201)
-async def create_ticket(body: TicketCreate, bg: BackgroundTasks, db=Depends(get_db)):
+async def create_ticket(body: TicketCreate, db=Depends(get_db)):
     now = datetime.utcnow()
     data = body.dict()
     if not data.get('job_name'):
@@ -39,12 +54,11 @@ async def create_ticket(body: TicketCreate, bg: BackgroundTasks, db=Depends(get_
         **data,
     )
     await db.save(ticket)
-    bg.add_task(process_ticket, ticket, db)
     return ticket
 
 
 @app.post("/api/tickets/{ticket_id}/notes", response_model=Ticket)
-async def add_note(ticket_id: str, body: NoteCreate, bg: BackgroundTasks, db=Depends(get_db)):
+async def add_note(ticket_id: str, body: NoteCreate, db=Depends(get_db)):
     ticket = await db.get(ticket_id)
     if not ticket:
         raise HTTPException(status_code=404, detail="Ticket not found")
@@ -52,7 +66,6 @@ async def add_note(ticket_id: str, body: NoteCreate, bg: BackgroundTasks, db=Dep
     ticket.status = TicketStatus.OPEN
     ticket.updated_at = datetime.utcnow()
     await db.save(ticket)
-    bg.add_task(process_ticket, ticket, db)
     return ticket
 
 
