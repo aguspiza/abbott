@@ -2,7 +2,6 @@ import type { Ticket } from './types'
 
 export async function createTicket(data: {
   raw_log: string
-  job_name?: string
   build_url?: string
 }): Promise<Ticket> {
   const res = await fetch('/tickets', {

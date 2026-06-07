@@ -1,3 +1,4 @@
+import re
 import uuid
 from datetime import datetime
 
@@ -12,6 +13,13 @@ app = FastAPI(title="Abbott — Jenkins Investigator")
 app.add_middleware(CORSMiddleware, allow_origins=["*"])
 
 
+def _job_name_from_url(url: str | None) -> str | None:
+    if not url:
+        return None
+    parts = re.findall(r'/job/([^/]+)', url)
+    return '/'.join(parts) if parts else None
+
+
 @app.post("/tickets", response_model=Ticket, status_code=201)
 async def create_ticket(
     body: TicketCreate,
@@ -19,12 +27,15 @@ async def create_ticket(
     db=Depends(get_db),
 ):
     now = datetime.utcnow()
+    data = body.dict()
+    if not data.get('job_name'):
+        data['job_name'] = _job_name_from_url(data.get('build_url'))
     ticket = Ticket(
         id=f"TKT-{uuid.uuid4().hex[:8].upper()}",
         status=TicketStatus.OPEN,
         created_at=now,
         updated_at=now,
-        **body.dict(),
+        **data,
     )
     await db.save(ticket)
     bg.add_task(process_ticket, ticket, db)

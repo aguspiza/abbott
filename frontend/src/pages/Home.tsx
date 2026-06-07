@@ -88,7 +88,6 @@ export default function Home() {
   const [tickets, setTickets] = useState<Ticket[]>([])
   const [days, setDays] = useState<number>(5)
   const [rawLog, setRawLog] = useState('')
-  const [jobName, setJobName] = useState('')
   const [buildUrl, setBuildUrl] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
@@ -115,12 +114,10 @@ export default function Home() {
     try {
       const ticket = await createTicket({
         raw_log: rawLog,
-        job_name: jobName || undefined,
         build_url: buildUrl || undefined,
       })
       setTickets(prev => [ticket, ...prev])
       setRawLog('')
-      setJobName('')
       setBuildUrl('')
     } catch (err) {
       setError(String(err))
@@ -151,26 +148,13 @@ export default function Home() {
             onChange={e => setRawLog(e.target.value)}
             required
           />
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 1rem' }}>
-            <div>
-              <label>Job name</label>
-              <input
-                type="text"
-                placeholder="e.g. build-service"
-                value={jobName}
-                onChange={e => setJobName(e.target.value)}
-              />
-            </div>
-            <div>
-              <label>Build URL</label>
-              <input
-                type="url"
-                placeholder="https://jenkins.example.com/job/…"
-                value={buildUrl}
-                onChange={e => setBuildUrl(e.target.value)}
-              />
-            </div>
-          </div>
+          <label>Build URL <span className="meta">(job name extracted automatically)</span></label>
+          <input
+            type="url"
+            placeholder="https://jenkins.example.com/job/my-job/42/"
+            value={buildUrl}
+            onChange={e => setBuildUrl(e.target.value)}
+          />
           {error && <p className="error">{error}</p>}
           <button type="submit" disabled={submitting || !rawLog.trim()}>
             {submitting ? <><span className="spinner" />Submitting…</> : 'Investigate'}
