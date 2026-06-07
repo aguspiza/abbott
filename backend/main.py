@@ -10,7 +10,7 @@ from .models import Ticket, TicketCreate, TicketStatus, NoteCreate
 from .worker import process_ticket
 
 app = FastAPI(title="Abbott — Jenkins Investigator")
-app.add_middleware(CORSMiddleware, allow_origins=["*"])
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 
 @app.on_event("startup")
