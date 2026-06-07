@@ -10,6 +10,7 @@ export interface Ticket {
   status: TicketStatus
   severity: Severity | null
   investigation: string | null
+  notes: string[]
   teams_payload: Record<string, unknown> | null
   jira_payload: Record<string, unknown> | null
   wiki_payload: Record<string, unknown> | null

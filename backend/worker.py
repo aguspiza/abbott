@@ -23,18 +23,16 @@ async def process_ticket(ticket: Ticket, db) -> None:
         # 3. Build + store mock payloads
         teams_payload = build_teams_payload(ticket, result)
         ticket.teams_payload = teams_payload
+        await send_teams(teams_payload, settings.teams_webhook)
 
-        wiki_payload = build_wiki_entry(ticket, result)
-        ticket.wiki_payload = wiki_payload
-
-        if ticket.severity == "bug":
+        if ticket.severity.value == "bug":
             jira_payload = build_jira_payload(ticket, result)
             ticket.jira_payload = jira_payload
-            # await create_jira_issue(jira_payload, settings.JIRA_URL, settings.JIRA_TOKEN)
+            # await create_jira_issue(jira_payload, settings.jira_url, settings.jira_token)
 
-        # 4. Send outputs (mocked — uncomment real calls when ready)
-        await send_teams(teams_payload, settings.teams_webhook)
-        await write_wiki_entry(wiki_payload, settings.wiki_repo, settings.github_token)
+            wiki_payload = build_wiki_entry(ticket, result)
+            ticket.wiki_payload = wiki_payload
+            await write_wiki_entry(wiki_payload, settings.wiki_repo, settings.github_token)
 
         ticket.status = TicketStatus.RESOLVED
 

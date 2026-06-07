@@ -9,6 +9,10 @@ def investigate(ticket: Ticket) -> dict:
     system = SYSTEM_PROMPT.read_text()
     parsed = ticket.parsed or {}
 
+    notes_section = ""
+    if ticket.notes:
+        notes_section = "\n## Additional Context (from users)\n" + "\n".join(f"- {n}" for n in ticket.notes)
+
     user_msg = f"""## Jenkins Failure Report
 
 **Job**: {ticket.job_name or "unknown"}
@@ -19,7 +23,7 @@ def investigate(ticket: Ticket) -> dict:
 ```
 {parsed.get("tail", ticket.raw_log[-3000:])}
 ```
-"""
+{notes_section}"""
 
     text = _call_llm(system, user_msg)
 

@@ -101,3 +101,53 @@ button:disabled { background: #374151; color: #6b7280; cursor: not-allowed; }
 .meta { font-size: 0.8rem; color: #64748b; margin-top: 0.25rem; }
 
 .back { font-size: 0.85rem; margin-bottom: 1.25rem; display: inline-block; }
+
+/* Ticket list row */
+.ticket-row {
+  background: #1e2330;
+  border: 1px solid #2d3748;
+  border-radius: 10px;
+  padding: 0.9rem 1.25rem;
+  margin-bottom: 0.6rem;
+}
+.ticket-row-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.ticket-row-left  { display: flex; align-items: center; gap: 0.6rem; }
+.ticket-row-right { display: flex; align-items: center; gap: 1rem; }
+.ticket-id { font-weight: 700; font-size: 0.9rem; }
+
+/* Day filter */
+.day-filter { display: flex; gap: 0.4rem; }
+.btn-filter {
+  background: #1e2330;
+  color: #94a3b8;
+  border: 1px solid #2d3748;
+  border-radius: 6px;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+.btn-filter.active { background: #3b82f6; color: #fff; border-color: #3b82f6; }
+.btn-filter:hover:not(.active) { border-color: #4b5563; color: #e2e8f0; }
+
+/* Ghost button (add context) */
+.btn-ghost {
+  background: transparent;
+  color: #60a5fa;
+  border: 1px solid #2d3748;
+  border-radius: 6px;
+  padding: 0.25rem 0.7rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+.btn-ghost:hover { border-color: #60a5fa; }
+
+/* Inline note form */
+.note-form { margin-top: 0.75rem; }
+.note-form textarea { margin-bottom: 0.5rem; }
+.note-form button { padding: 0.45rem 1rem; font-size: 0.85rem; }

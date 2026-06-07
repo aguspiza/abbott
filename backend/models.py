@@ -24,6 +24,10 @@ class TicketCreate(BaseModel):
     build_url: Optional[str] = None
 
 
+class NoteCreate(BaseModel):
+    note: str
+
+
 class Ticket(BaseModel):
     id: str
     job_name: Optional[str]
@@ -33,6 +37,7 @@ class Ticket(BaseModel):
     status: TicketStatus
     severity: Optional[Severity] = None
     investigation: Optional[str] = None  # markdown report from Claude
+    notes: list[str] = []                # user-supplied additional context
     teams_payload: Optional[dict] = None # mocked output
     jira_payload: Optional[dict] = None  # mocked output, if bug
     wiki_payload: Optional[dict] = None  # mocked output
