@@ -2,7 +2,7 @@ import re
 import uuid
 from datetime import datetime
 
-from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException
+from fastapi import APIRouter, BackgroundTasks, Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from .db import get_db
@@ -12,6 +12,8 @@ from .worker import process_ticket
 app = FastAPI(title="Abbott — Jenkins Investigator")
 app.add_middleware(CORSMiddleware, allow_origins=["*"])
 
+router = APIRouter(prefix="/api")
+
 
 def _job_name_from_url(url: str | None) -> str | None:
     if not url:
@@ -20,7 +22,7 @@ def _job_name_from_url(url: str | None) -> str | None:
     return '/'.join(parts) if parts else None
 
 
-@app.post("/tickets", response_model=Ticket, status_code=201)
+@router.post("/tickets", response_model=Ticket, status_code=201)
 async def create_ticket(
     body: TicketCreate,
     bg: BackgroundTasks,
@@ -68,6 +70,9 @@ async def get_ticket(ticket_id: str, db=Depends(get_db)):
     return ticket
 
 
-@app.get("/tickets", response_model=list[Ticket])
+@router.get("/tickets", response_model=list[Ticket])
 async def list_tickets(days: int = 5, db=Depends(get_db)):
     return await db.list(days=days)
+
+
+app.include_router(router)

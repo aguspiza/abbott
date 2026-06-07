@@ -4,7 +4,7 @@ export async function createTicket(data: {
   raw_log: string
   build_url?: string
 }): Promise<Ticket> {
-  const res = await fetch('/tickets', {
+  const res = await fetch('/api/tickets', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
