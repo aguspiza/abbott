@@ -5,12 +5,17 @@ from datetime import datetime
 from fastapi import APIRouter, BackgroundTasks, Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-from .db import get_db
+from .db import get_db, init_db
 from .models import Ticket, TicketCreate, TicketStatus, NoteCreate
 from .worker import process_ticket
 
 app = FastAPI(title="Abbott — Jenkins Investigator")
 app.add_middleware(CORSMiddleware, allow_origins=["*"])
+
+
+@app.on_event("startup")
+async def startup():
+    await init_db()
 
 router = APIRouter(prefix="/api")
 
