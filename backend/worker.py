@@ -1,3 +1,4 @@
+import asyncio
 from .models import Ticket, TicketStatus
 from .parser import parse_log
 from .investigator import investigate
@@ -15,8 +16,8 @@ async def process_ticket(ticket: Ticket, db) -> None:
         ticket.status = TicketStatus.INVESTIGATING
         await db.save(ticket)
 
-        # 2. Investigate with Claude
-        result = investigate(ticket)
+        # 2. Investigate with LLM (blocking I/O — run in thread pool)
+        result = await asyncio.to_thread(investigate, ticket)
         ticket.severity      = result["severity"]
         ticket.investigation = result["report"]
 
